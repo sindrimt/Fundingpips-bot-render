@@ -3,6 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { Client, Routes, Collection, GatewayIntentBits, Partials } = require("discord.js");
 const { DISCORD_TOKEN, APP_ID, SERVER_ID } = process.env;
+const express = require("express"); // Import express
 
 const client = new Client({
     intents: [
@@ -15,6 +16,21 @@ const client = new Client({
     ],
     partials: [Partials.Channel],
     rest: { version: "10" },
+});
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get("/healthz", (req, res) => {
+    if (client.isReady()) {
+        res.status(200).send("OK");
+    } else {
+        res.status(503).send("Service Unavailable");
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Health check server listening on port ${PORT}`);
 });
 
 const eventsPath = path.join(__dirname, "events");
