@@ -295,6 +295,6 @@ async function saveTranscript(username, userpix) {
         console.log('Saved!')
         session = `${process.env.VOICEFLOW_VERSION_ID}.${createSession()}`
       })
-      .catch((err) => console.log(err))
+      .catch((err) => console.log(err.message))
   }
 }

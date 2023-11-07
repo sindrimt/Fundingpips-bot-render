@@ -12,7 +12,7 @@ module.exports = {
       try {
         await interact(interaction, interaction.user.id, true)
       } catch (error) {
-        console.error('Error interacting with the API:', error)
+        console.error('Error interacting with the API:', error.message)
         await interaction.followUp(
           'There was an error interacting with the API.'
         )
