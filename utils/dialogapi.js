@@ -105,115 +105,115 @@ async function dialogAPI(interaction, user, isFollow, isDM, action, isLive, thre
                 },
             }
         );
-    } catch (error) {
-        console.log("voiceflow interaction error");
-        console.log(error?.message);
-    }
 
-    if (response.data.length != 0) {
-        let isEnding = response.data.some((item) => item.type === "end");
-        const noReply = getNoReplyTimeout(response.data);
+        if (response.data.length != 0) {
+            let isEnding = response.data.some((item) => item.type === "end");
+            const noReply = getNoReplyTimeout(response.data);
 
-        for (const trace of response.data) {
-            if (trace.type === "text") {
-                if (isFollow) {
-                    await interaction.followUp({
-                        content: trace.payload.message,
-                        ephemeral: true,
-                    });
-                } else if (isLive == true && process.env.THREADS == "true") {
-                    // Create a new thread from the message
-                    interaction
-                        .startThread({
-                            name: threadTitle,
-                            autoArchiveDuration: 10080, // Duration until the thread is archived in minutes, it can be '60', '1440', '4320', '10080'
-                        })
-                        .then((newThread) => {
-                            newThread.send(trace.payload.message);
-                        })
-                        .catch(console.error);
-                } else {
-                    try {
-                        await interaction.reply({
+            for (const trace of response.data) {
+                if (trace.type === "text") {
+                    if (isFollow) {
+                        await interaction.followUp({
                             content: trace.payload.message,
                             ephemeral: true,
                         });
+                    } else if (isLive == true && process.env.THREADS == "true") {
+                        // Create a new thread from the message
+                        interaction
+                            .startThread({
+                                name: threadTitle,
+                                autoArchiveDuration: 10080, // Duration until the thread is archived in minutes, it can be '60', '1440', '4320', '10080'
+                            })
+                            .then((newThread) => {
+                                newThread.send(trace.payload.message);
+                            })
+                            .catch(console.error);
+                    } else {
+                        try {
+                            await interaction.reply({
+                                content: trace.payload.message,
+                                ephemeral: true,
+                            });
+                        } catch (error) {
+                            console.log(error?.message);
+                        }
+                    }
+                } else if (trace.type === "choice") {
+                    const actionRow = new ActionRowBuilder();
+                    trace.payload.buttons.forEach((button, index) => {
+                        if (index < 5) {
+                            let customId = button.request.type;
+                            if (button.request.type == "intent") {
+                                customId = `intent-${button.request.payload.intent.name}`;
+                            }
+                            actionRow.addComponents(
+                                new ButtonBuilder().setCustomId(customId).setLabel(button.name).setStyle(ButtonStyle.Primary).setDisabled(false)
+                            );
+                        }
+                    });
+                    if (isFollow) {
+                        await interaction.followUp({
+                            components: [actionRow],
+                            ephemeral: true,
+                        });
+                    } else {
+                        await interaction.reply({
+                            components: [actionRow],
+                            ephemeral: true,
+                        });
+                    }
+                } else if (trace.type === "visual" && trace.payload.visualType === "image") {
+                    const embed = new EmbedBuilder().setImage(trace.payload.image).setTitle("Image");
+
+                    if (isFollow) {
+                        await interaction.followUp({ embeds: [embed], ephemeral: true });
+                    } else {
+                        await interaction.reply({ embeds: [embed], ephemeral: true });
+                    }
+                }
+            }
+            if (noReply && isEnding === false) {
+                noReplyTimeout = setTimeout(async () => {
+                    action = {
+                        type: "no-reply",
+                    };
+                    try {
+                        await dialogAPI(interaction, user, true, action);
                     } catch (error) {
                         console.log(error?.message);
                     }
-                }
-            } else if (trace.type === "choice") {
-                const actionRow = new ActionRowBuilder();
-                trace.payload.buttons.forEach((button, index) => {
-                    if (index < 5) {
-                        let customId = button.request.type;
-                        if (button.request.type == "intent") {
-                            customId = `intent-${button.request.payload.intent.name}`;
-                        }
-                        actionRow.addComponents(
-                            new ButtonBuilder().setCustomId(customId).setLabel(button.name).setStyle(ButtonStyle.Primary).setDisabled(false)
-                        );
-                    }
-                });
-                if (isFollow) {
-                    await interaction.followUp({
-                        components: [actionRow],
-                        ephemeral: true,
-                    });
-                } else {
-                    await interaction.reply({
-                        components: [actionRow],
-                        ephemeral: true,
-                    });
-                }
-            } else if (trace.type === "visual" && trace.payload.visualType === "image") {
-                const embed = new EmbedBuilder().setImage(trace.payload.image).setTitle("Image");
-
-                if (isFollow) {
-                    await interaction.followUp({ embeds: [embed], ephemeral: true });
-                } else {
-                    await interaction.reply({ embeds: [embed], ephemeral: true });
-                }
+                }, noReply);
             }
-        }
-        if (noReply && isEnding === false) {
-            noReplyTimeout = setTimeout(async () => {
-                action = {
-                    type: "no-reply",
-                };
+            if (isEnding === true) {
+                // an end trace means the the Voiceflow dialog has ended
+
+                let userName = null;
+                let avatarURL = "https://s3.amazonaws.com/com.voiceflow.studio/share/200x200/200x200.png";
                 try {
-                    await dialogAPI(interaction, user, true, action);
+                    userName = interaction.user.username;
+                    avatarURL = interaction.user.displayAvatarURL({
+                        format: "png",
+                        dynamic: true,
+                        size: 1024,
+                    });
+                } catch {
+                    userName = interaction.author.username;
+                    avatarURL = interaction.author.displayAvatarURL({
+                        format: "png",
+                        dynamic: true,
+                        size: 1024,
+                    });
+                }
+                try {
+                    await saveTranscript(userName, avatarURL);
                 } catch (error) {
                     console.log(error?.message);
                 }
-            }, noReply);
-        }
-        if (isEnding === true) {
-            // an end trace means the the Voiceflow dialog has ended
-
-            let userName = null;
-            let avatarURL = "https://s3.amazonaws.com/com.voiceflow.studio/share/200x200/200x200.png";
-            try {
-                userName = interaction.user.username;
-                avatarURL = interaction.user.displayAvatarURL({
-                    format: "png",
-                    dynamic: true,
-                    size: 1024,
-                });
-            } catch {
-                userName = interaction.author.username;
-                avatarURL = interaction.author.displayAvatarURL({
-                    format: "png",
-                    dynamic: true,
-                    size: 1024,
-                });
-            }
-            try {
-                await saveTranscript(userName, avatarURL);
-            } catch (error) {
-                console.log(error?.message);
             }
         }
+    } catch (error) {
+        console.log("voiceflow interaction error");
+        console.log(error?.message);
     }
 }
 
