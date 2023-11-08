@@ -1,0 +1,13 @@
+{
+Nov 8 12:41:33 PM    type: 'intent',
+Nov 8 12:41:33 PM    payload: {
+Nov 8 12:41:33 PM      intent: { name: 'live_answer' },
+Nov 8 12:41:33 PM      query: 'How many minimum pips should i make',
+Nov 8 12:41:33 PM      entities: []
+Nov 8 12:41:33 PM    }
+Nov 8 12:41:33 PM  }
+Nov 8 12:41:33 PM  943835817569316884
+Nov 8 12:41:33 PM  654a4984100b6a3f0dce4368.158Wednesday1699443274894
+Nov 8 12:41:33 PM  ==================
+Nov 8 12:42:33 PM  voiceflow interaction error
+Nov 8 12:42:33 PM  Request failed with status code 520

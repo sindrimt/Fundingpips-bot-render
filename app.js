@@ -67,3 +67,30 @@ async function main() {
 }
 
 main();
+
+const response = await axios.post(
+    `${process.env.VOICEFLOW_API_URL}/state/user/${user}/interact`,
+    {
+        action: {
+            type: "intent",
+            payload: {
+                intent: { name: "live_answer" },
+                query: "How many minimum pips should i make",
+                entities: [],
+            },
+        },
+        config: {
+            tts: false,
+            stripSSML: true,
+            stopAll: true,
+            excludeTypes: ["path", "debug", "flow", "block"],
+        },
+    },
+    {
+        headers: {
+            Authorization: process.env.VOICEFLOW_API_KEY,
+            "Content-Type": "application/json",
+            sessionid: session,
+        },
+    }
+);

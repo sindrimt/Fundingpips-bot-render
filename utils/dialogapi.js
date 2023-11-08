@@ -131,7 +131,11 @@ async function dialogAPI(interaction, user, isFollow, isDM, action, isLive, thre
                                 autoArchiveDuration: 10080, // Duration until the thread is archived in minutes, it can be '60', '1440', '4320', '10080'
                             })
                             .then((newThread) => {
-                                newThread.send(trace.payload.message);
+                                if (trace.payload.message != 1) {
+                                    newThread.send(trace.payload.message);
+                                } else {
+                                    console.log("Got 1");
+                                }
                             })
                             .catch(console.error);
                     } else {
