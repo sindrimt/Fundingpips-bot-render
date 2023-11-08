@@ -92,25 +92,29 @@ async function dialogAPI(interaction, user, isFollow, isDM, action, isLive, thre
     console.log("==================");
 
     try {
-        const response = await axios.post(
-            `${process.env.VOICEFLOW_API_URL}/state/user/${user}/interact`,
-            {
-                action: action,
-                config: {
-                    tts: false,
-                    stripSSML: true,
-                    stopAll: true,
-                    excludeTypes: ["path", "debug", "flow", "block"],
+        const response = await axios
+            .post(
+                `${process.env.VOICEFLOW_API_URL}/state/user/${user}/interact`,
+                {
+                    action: action,
+                    config: {
+                        tts: false,
+                        stripSSML: true,
+                        stopAll: true,
+                        excludeTypes: ["path", "debug", "flow", "block"],
+                    },
                 },
-            },
-            {
-                headers: {
-                    Authorization: process.env.VOICEFLOW_API_KEY,
-                    "Content-Type": "application/json",
-                    sessionid: session,
-                },
-            }
-        );
+                {
+                    headers: {
+                        Authorization: process.env.VOICEFLOW_API_KEY,
+                        "Content-Type": "application/json",
+                        sessionid: session,
+                    },
+                }
+            )
+            .then((response) => {
+                console.log(response);
+            });
 
         if (response.data.length != 0) {
             let isEnding = response.data.some((item) => item.type === "end");
