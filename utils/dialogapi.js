@@ -85,6 +85,12 @@ async function dialogAPI(interaction, user, isFollow, isDM, action, isLive, thre
 
     await saveData(user, username, isDM);
 
+    console.log("==================");
+    console.log(action);
+    console.log(user);
+    console.log(session);
+    console.log("==================");
+
     try {
         const response = await axios.post(
             `${process.env.VOICEFLOW_API_URL}/state/user/${user}/interact`,
@@ -180,6 +186,7 @@ async function dialogAPI(interaction, user, isFollow, isDM, action, isLive, thre
                     try {
                         await dialogAPI(interaction, user, true, action);
                     } catch (error) {
+                        console.log("no-reply error");
                         console.log(error?.message);
                     }
                 }, noReply);
@@ -207,6 +214,7 @@ async function dialogAPI(interaction, user, isFollow, isDM, action, isLive, thre
                 try {
                     await saveTranscript(userName, avatarURL);
                 } catch (error) {
+                    console.log("Error saving transcript");
                     console.log(error?.message);
                 }
             }
