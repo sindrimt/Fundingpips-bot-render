@@ -9,22 +9,22 @@ module.exports = {
             return;
         }
 
-        const newob = JSON.stringify(message.member);
-        const userRoles = JSON.parse(newob).roles;
-
-        console.log(userRoles);
-
-        // Moderator and support roles
-        const moderatorRoles = ["1033766629319909427", "1150807715417952378"];
-
-        // If the user who wrote the message has a mod role, we return
-        // since the bot should not respond to a mod
-        if (userRoles.some((item) => moderatorRoles.includes(item))) {
-            console.log("is mod");
-            return;
-        }
-
         if (process.env.LIVEANSWERS_CHANNELS.includes(message.channel.id)) {
+            const newob = JSON.stringify(message.member);
+            const userRoles = JSON.parse(newob).roles;
+
+            console.log(userRoles);
+
+            // Moderator and support roles
+            const moderatorRoles = ["1033766629319909427", "1150807715417952378"];
+
+            // If the user who wrote the message has a mod role, we return
+            // since the bot should not respond to a mod
+            if (userRoles.some((item) => moderatorRoles.includes(item))) {
+                console.log("is mod");
+                return;
+            }
+
             console.log("User message:", message.content);
             let liveAnswer = message;
             liveAnswer.isLive = true;
