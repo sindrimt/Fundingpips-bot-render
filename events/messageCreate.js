@@ -12,7 +12,7 @@ module.exports = {
         const newob = JSON.stringify(message.member);
         const userRoles = JSON.parse(newob).roles;
 
-        console.log(userRules);
+        console.log(userRoles);
 
         // Moderator and support roles
         const moderatorRoles = ["1033766629319909427", "1150807715417952378"];
