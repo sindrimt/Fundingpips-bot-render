@@ -22,7 +22,7 @@ async function query(data) {
 
 async function queryOpenAI(userInput) {
     const url = "https://api.openai.com/v1/chat/completions";
-    const api_key = process.env.LIVEANSWERS_CHANNELS; // Replace with your actual API key
+    const api_key = process.env.OPENAI_KEY; // Replace with your actual API key
 
     const headers = {
         "Content-Type": "application/json",
