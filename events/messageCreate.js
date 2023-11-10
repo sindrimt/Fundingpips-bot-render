@@ -83,7 +83,7 @@ module.exports = {
             const result = await queryOpenAI(messageWithoutMention);
             console.log(result);
 
-            if (result.includes(1)) {
+            if (result?.includes(1)) {
                 try {
                     query({
                         "in-0": `${messageWithoutMention}`,
