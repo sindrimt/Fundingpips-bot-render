@@ -106,8 +106,9 @@ module.exports = {
                                 }
                             }
                         })
-                        .catch(() => {
-                            console.log("error");
+                        .catch((err) => {
+                            console.log(err);
+                            console.log("Error with query");
                         });
                 } catch (error) {
                     console.log(error);
