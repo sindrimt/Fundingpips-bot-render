@@ -46,6 +46,7 @@ async function queryOpenAI(userInput) {
 
     try {
         const response = await axios.post(url, data, { headers: headers });
+        console.log(response);
         return response.data.choices[0].message.content;
     } catch (error) {
         console.error("Error querying OpenAI:", error);
