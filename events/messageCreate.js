@@ -5,14 +5,11 @@ const axios = require("axios");
 
 async function query(data) {
     try {
-        const response = await fetch(
-            "https://www.stack-inference.com/run_deployed_flow?flow_id=6536cc6913a98a3d6b424b81&org=efb9c8f5-9810-4a3a-bcc5-b6ab1335b664",
-            {
-                headers: { Authorization: "Bearer c01b8c21-bdf1-46be-b539-87bccedc77a4", "Content-Type": "application/json" },
-                method: "POST",
-                body: JSON.stringify(data),
-            }
-        );
+        const response = await fetch(process.env.STACKAI_LINK, {
+            headers: { Authorization: process.env.STACKAI_KEY, "Content-Type": "application/json" },
+            method: "POST",
+            body: JSON.stringify(data),
+        });
         const result = await response.json();
         return result;
     } catch (error) {
