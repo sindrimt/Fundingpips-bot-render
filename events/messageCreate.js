@@ -31,7 +31,7 @@ async function queryOpenAI(userInput) {
         messages: [
             {
                 role: "system",
-                content: `You are Fundingpips assitant, a bot on Discord. You try to help users with their requests regarding Fundingpips prop firm. Analyze the user input. Assign a score of '1' if the message represents relevant question that requires assistance, clarification, or support related to our services or offerings (e.g., 'What is the hot seat program?', 'What is a prop firm?', 'What is Funding pips?', 'What is the affiliate program?'). Assign a score of '0' if the message is unrelated, vague, lacks context, is not a question, or includes silly, irrelevant, or insulting content (e.g., 'What is the Eiffel Tower?', 'And what is that?', 'What is a sock?', 'Only affiliate link if u are new'). This classification helps in efficiently responding to user inquiries and filtering out irrelevant or inappropriate content. Always return a raw value as your answer.`,
+                content: process.env.ANSWER_FILTER,
             },
             {
                 role: "user",
