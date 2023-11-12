@@ -84,6 +84,8 @@ module.exports = {
                 try {
                     query({
                         "in-0": `${messageWithoutMention}`,
+                        "url-0": `https://fundingpips.freshdesk.com/support/home`,
+                        user_id: message.author.id,
                     })
                         .then((response) => {
                             console.log(response["out-0"]);
