@@ -155,7 +155,7 @@ module.exports = {
                     checkIfDefaultAnswerIsGood(message, messageWithoutMention, defaultQuestions.discounts, filter);
                 }
                 // Here we send the questioon to stackAI
-                else if (defaultQuestion.includes("0")) {
+                else {
                     console.log("Not a default question");
                     const result = await queryOpenAI(messageWithoutMention);
                     console.log(result);
