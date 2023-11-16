@@ -2,6 +2,8 @@ require("dotenv").config();
 const { Events } = require("discord.js");
 const { interact } = require("../utils/dialogapi.js");
 const axios = require("axios");
+const fetch = require("node-fetch");
+const defaultQuestions = require("../defaultQuestions.json");
 
 async function query(data) {
     try {
@@ -19,7 +21,7 @@ async function query(data) {
 
 async function queryOpenAI(userInput) {
     const url = "https://api.openai.com/v1/chat/completions";
-    const api_key = process.env.OPENAI_KEY; // Replace with your actual API key
+    const api_key = process.env.OPENAI_KEY;
 
     const headers = {
         "Content-Type": "application/json",
@@ -44,6 +46,54 @@ async function queryOpenAI(userInput) {
     try {
         const response = await axios.post(url, data, { headers: headers });
         return response.data.choices[0].message.content;
+    } catch (error) {
+        console.error("Error querying OpenAI:", error);
+    }
+}
+
+// This function checkis if the user question is one of the most asked questions
+// If it is, it should return which question it is
+
+async function checkIfDefaultReply(userInput) {
+    console.log(userInput);
+    const url = "https://api.openai.com/v1/chat/completions";
+    const api_key = process.env.OPENAI_KEY;
+
+    const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${api_key}`,
+    };
+
+    const data = {
+        model: "gpt-3.5-turbo",
+        messages: [
+            {
+                role: "system",
+                content:
+                    "You are an expert at categorizing questions. There are only 6 questions you will look for. These are: 1. Trading rules 2. Payout 3. Restricted rules 4. IP Address 5. News rules 6. Discounts. If the user asks any of these questions, return the question category. If the user asks any other question, return '0'. IMPORTANT: You do not just look after keyword matches, you need to evaluate the context of the user message.",
+            },
+            {
+                role: "user",
+                content: `${userInput}`,
+            },
+        ],
+        temperature: 0,
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log(result.choices[0].message.content);
+        return result.choices[0].message.content;
     } catch (error) {
         console.error("Error querying OpenAI:", error);
     }
@@ -77,24 +127,148 @@ module.exports = {
             liveAnswer.isLive = true;
             const messageWithoutMention = message.content.replace(/^<@\!?(\d+)>/, "").trim();
 
-            const result = await queryOpenAI(messageWithoutMention);
-            console.log(result);
+            //TODO Legg til default sjekk her
 
-            if (result?.includes(1)) {
+            try {
+                const defaultQuestion = await checkIfDefaultReply(messageWithoutMention);
+
+                console.log("==================");
+                console.log(defaultQuestion);
+
+                const filter = (reaction, user) => {
+                    return ["👍", "👎"].includes(reaction.emoji.name) && user.id === message.author.id;
+                };
+
+                // If the intent is any of the default questions, send the default response,
+                // If not, get the answer from stackAI
+                if (defaultQuestion.toLowerCase().includes("trading rules")) {
+                    checkIfDefaultAnswerIsGood(message, messageWithoutMention, defaultQuestions.tradingRules, filter);
+                } else if (defaultQuestion.toLowerCase().includes("payout")) {
+                    checkIfDefaultAnswerIsGood(message, messageWithoutMention, defaultQuestions.payout, filter);
+                } else if (defaultQuestion.toLowerCase().includes("restricted rules")) {
+                    checkIfDefaultAnswerIsGood(message, messageWithoutMention, defaultQuestions.restrictedRules, filter);
+                } else if (defaultQuestion.toLowerCase().includes("ip address")) {
+                    checkIfDefaultAnswerIsGood(message, messageWithoutMention, defaultQuestions.ipAddress, filter);
+                } else if (defaultQuestion.toLowerCase().includes("news rules")) {
+                    checkIfDefaultAnswerIsGood(message, messageWithoutMention, defaultQuestions.newsRules, filter);
+                } else if (defaultQuestion.toLowerCase().includes("discounts")) {
+                    checkIfDefaultAnswerIsGood(message, messageWithoutMention, defaultQuestions.discounts, filter);
+                }
+                // Here we send the questioon to stackAI
+                else if (defaultQuestion.includes("0")) {
+                    console.log("Not a default question");
+                    const result = await queryOpenAI(messageWithoutMention);
+                    console.log(result);
+
+                    if (result?.includes(1)) {
+                        try {
+                            query({
+                                "in-0": `${messageWithoutMention}`,
+                                "url-0": `https://fundingpips.freshdesk.com/support/home`,
+                                user_id: message.author.id,
+                            })
+                                .then((response) => {
+                                    console.log(response["out-0"]);
+
+                                    if (
+                                        response["out-0"].includes("please ask Prop-firm related questions") ||
+                                        response["out-0"].includes("This information is not related to my understanding") ||
+                                        response["out-0"].includes("Prop-firm related questions only")
+                                    ) {
+                                        return;
+                                    } else {
+                                        if (response["out-0"]) {
+                                            message.reply(response["out-0"]);
+                                        } else {
+                                            return;
+                                        }
+                                    }
+                                })
+                                .catch((err) => {
+                                    console.log(err);
+                                    console.log("Error with query");
+                                });
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    } else {
+                        console.log("Not a valid question");
+                    }
+                }
+            } catch (error) {
+                const result = await queryOpenAI(messageWithoutMention);
+                console.log(result);
+
+                if (result?.includes(1)) {
+                    try {
+                        query({
+                            "in-0": `${messageWithoutMention}`,
+                            "url-0": `https://fundingpips.freshdesk.com/support/home`,
+                            user_id: message.author.id,
+                        })
+                            .then((response) => {
+                                console.log(response["out-0"]);
+
+                                if (
+                                    response["out-0"].includes("please ask Prop-firm related questions") ||
+                                    response["out-0"].includes("This information is not related to my understanding") ||
+                                    response["out-0"].includes("Prop-firm related questions only")
+                                ) {
+                                    return;
+                                } else {
+                                    if (response["out-0"]) {
+                                        message.reply(response["out-0"]);
+                                    } else {
+                                        return;
+                                    }
+                                }
+                            })
+                            .catch((err) => {
+                                console.log(err);
+                                console.log("Error with query");
+                            });
+                    } catch (error) {
+                        console.log(error);
+                    }
+                } else {
+                    console.log("Not a valid question");
+                }
+            }
+        }
+    },
+};
+
+const checkIfDefaultAnswerIsGood = (message, messageWithoutMention, defaultAnswer, filter) => {
+    message.reply(defaultAnswer).then((sentMessage) => {
+        sentMessage.react("👍");
+        sentMessage.react("👎");
+
+        const collector = sentMessage.createReactionCollector({ filter, max: 1, time: 300000 });
+
+        collector.on("collect", async (reaction, user) => {
+            if (reaction.emoji.name === "👎") {
+                // Call another function here
+                const findingAnswerMessage = await message.reply("Finding you a better answer...⏱️");
                 try {
                     query({
                         "in-0": `${messageWithoutMention}`,
                         "url-0": `https://fundingpips.freshdesk.com/support/home`,
                         user_id: message.author.id,
                     })
-                        .then((response) => {
+                        .then(async (response) => {
                             console.log(response["out-0"]);
+
+                            // Delete the 'finding better answer' message
+                            if (findingAnswerMessage) {
+                                await findingAnswerMessage.delete();
+                            }
 
                             if (
                                 response["out-0"].includes("please ask Prop-firm related questions") ||
                                 response["out-0"].includes("This information is not related to my understanding") ||
                                 response["out-0"].includes("Prop-firm related questions only")
                             ) {
+                                message.reply(response["out-0"]);
                                 return;
                             } else {
                                 if (response["out-0"]) {
@@ -104,16 +278,21 @@ module.exports = {
                                 }
                             }
                         })
-                        .catch((err) => {
+                        .catch(async (err) => {
+                            await findingAnswerMessage.delete();
+                            message.reply("No answer found");
                             console.log(err);
                             console.log("Error with query");
                         });
                 } catch (error) {
+                    await findingAnswerMessage.delete();
+                    message.reply("No answer found");
                     console.log(error);
                 }
-            } else {
-                console.log("Not a valid question");
             }
-        }
-    },
+        });
+        // collector.on("end", (collected) => {
+        //     console.log(`Collected ${collected.size} reactions`);
+        // });
+    });
 };

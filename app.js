@@ -13,6 +13,7 @@ const client = new Client({
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.DirectMessages,
+        GatewayIntentBits.GuildMessageReactions,
     ],
     partials: [Partials.Channel],
     rest: { version: "10" },
