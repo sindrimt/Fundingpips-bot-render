@@ -2,7 +2,7 @@ const axios = require("axios");
 
 async function checkIfDefaultReply(userInput) {
     const url = "https://api.openai.com/v1/chat/completions";
-    const api_key = "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";
+    const api_key = "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";
 
     const headers = {
         "Content-Type": "application/json",
