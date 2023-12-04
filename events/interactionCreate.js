@@ -8,17 +8,17 @@ const { userActiveMessages } = require("./messageCreate.js");
 module.exports = {
     name: Events.InteractionCreate,
     async execute(interaction) {
-        userActiveMessages.delete(interaction.user.id);
+        userActiveMessages.delete(interaction?.user?.id);
 
         if (interaction.isButton()) {
-            const [customId, originalMessageId] = interaction.customId.split("-");
+            const [customId, originalMessageId] = interaction?.customId?.split("-");
 
-            const formattedQuestion = interaction.message.content.replaceAll("**", "");
+            const formattedQuestion = interaction?.message?.content?.replaceAll("**", "");
 
-            const originalMessageUserId = interaction?.message.mentions.repliedUser.id;
+            const originalMessageUserId = interaction?.message.mentions?.repliedUser?.id;
 
             // Check if the user who clicked the button is the same as the user who sent the original message
-            if (interaction.user.id !== originalMessageUserId) {
+            if (interaction?.user?.id !== originalMessageUserId) {
                 // Inform the user that they are not allowed to use these buttons
                 return;
                 //return interaction.reply({ content: "You are not allowed to use these buttons.", ephemeral: true });
