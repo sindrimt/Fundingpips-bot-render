@@ -111,7 +111,7 @@ module.exports = {
                             setTimeout(() => {
                                 sentMessage.delete().catch((e) => console.error("Error deleting message: ", e));
                                 userActiveMessages.delete(interaction.user.id);
-                            }, 15000); // 15 seconds timeout
+                            }, 30000); // 30 seconds timeout
                         });
 
                         break;
