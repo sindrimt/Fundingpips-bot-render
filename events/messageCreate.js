@@ -153,7 +153,7 @@ module.exports = {
 
             // Send the initial reply with buttons
             message
-                .reply({ content: `**${message.content}**`, components: [row1, row2], ephemeral: true })
+                .reply({ content: `**Please select a button below, or choose ask AI**`, components: [row1, row2], ephemeral: true })
                 .then((sentMessage) => {
                     userActiveMessages.set(message.author.id, sentMessage.id);
 
