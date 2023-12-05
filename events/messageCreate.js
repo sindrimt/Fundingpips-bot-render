@@ -17,7 +17,7 @@ async function query(data) {
         const result = await response.json();
         return result;
     } catch (error) {
-        console.log(error);
+        console.log(error?.message);
     }
 }
 
@@ -105,7 +105,6 @@ module.exports = {
         }
 
         const existingMessageId = userActiveMessages.get(message.author.id);
-        console.log(existingMessageId);
 
         if (existingMessageId) {
             return;
@@ -114,8 +113,6 @@ module.exports = {
         if (process.env.LIVEANSWERS_CHANNELS.includes(message.channel.id)) {
             const newob = JSON.stringify(message.member);
             const userRoles = JSON.parse(newob).roles;
-
-            console.log(userRoles);
 
             // Moderator and support roles
             const moderatorRoles = ["1033766629319909427", "1150807715417952378"];
@@ -156,7 +153,7 @@ module.exports = {
 
             // Send the initial reply with buttons
             message
-                .reply({ content: `**${message.content}**`, components: [row1, row2], ephemeral: true })
+                .reply({ content: `**Please select a button below, or choose ask AI**`, components: [row1, row2], ephemeral: true })
                 .then((sentMessage) => {
                     userActiveMessages.set(message.author.id, sentMessage.id);
 
@@ -222,13 +219,12 @@ const checkIfDefaultAnswerIsGood = (message, messageWithoutMention, defaultAnswe
                         .catch(async (err) => {
                             await findingAnswerMessage.delete();
                             message.reply("No answer found");
-                            console.log(err);
-                            console.log("Error with query");
+                            console.log(err.message);
                         });
                 } catch (error) {
                     await findingAnswerMessage.delete();
                     message.reply("No answer found");
-                    console.log(error);
+                    console.log(error.message);
                 }
             }
         });

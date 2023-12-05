@@ -8,7 +8,11 @@ const { userActiveMessages } = require("./messageCreate.js");
 module.exports = {
     name: Events.InteractionCreate,
     async execute(interaction) {
-        userActiveMessages.delete(interaction?.user?.id);
+        try {
+            userActiveMessages.delete(interaction.user.id);
+        } catch {
+            console.log("error deleting user from active messages");
+        }
 
         if (interaction.isButton()) {
             const [customId, originalMessageId] = interaction?.customId?.split("-");
@@ -112,7 +116,6 @@ module.exports = {
 
                         break;
                     case "ask_ai":
-                        console.log(originalMessage);
                         //await interaction.deferReply({ ephemeral: false, content: originalMessage.content });
                         const user = interaction.user; // The user who clicked the button
 
@@ -126,9 +129,13 @@ module.exports = {
                             await interaction.editReply({ content: responseContent, ephemeral: true });
                         }, 1500);
 
+                        console.log("=======Before StackAI=======");
+                        console.log(originalMessage.content);
+                        console.log(interaction.user.id);
+
                         responseMessage = await query({
-                            "in-0": originalMessage.content,
-                            user_id: interaction.user.id,
+                            "in-0": originalMessage?.content,
+                            user_id: interaction?.user?.id,
                         });
 
                         console.log(responseMessage["out-0"]);
@@ -138,7 +145,7 @@ module.exports = {
                             responseMessage["out-0"].includes("This information is not related to my understanding") ||
                             responseMessage["out-0"].includes("Prop-firm related questions only")
                         ) {
-                            responseMessage = "Specific response needed.";
+                            responseMessage = "This information is not related to my understanding. Try rephrasing your question please";
                         } else {
                             responseMessage = responseMessage["out-0"] ? responseMessage["out-0"] : "No response from query.";
                         }
