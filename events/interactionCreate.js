@@ -45,45 +45,55 @@ module.exports = {
                 switch (customId) {
                     case "time_limits":
                         responseMessage = defaultQuestions.time_limits;
+                        await interaction.reply({ content: responseMessage, ephemeral: true }); // Reply to the interaction
                         break;
                     case "payout_rules":
                         responseMessage = defaultQuestions.payout_rules;
+                        await interaction.reply({ content: responseMessage, ephemeral: true }); // Reply to the interaction
                         break;
                     case "current_discounts":
                         responseMessage = defaultQuestions.current_discounts;
+                        await interaction.reply({ content: responseMessage, ephemeral: true }); // Reply to the interaction
                         break;
                     case "news_rules":
                         responseMessage = defaultQuestions.news_rules;
+                        await interaction.reply({ content: responseMessage, ephemeral: true }); // Reply to the interaction
                         break;
                     case "restricted_countries":
                         responseMessage = defaultQuestions.restricted_countries;
+                        await interaction.reply({ content: responseMessage, ephemeral: true }); // Reply to the interaction
                         break;
                     case "prohibited_strategies":
                         responseMessage = defaultQuestions.prohibited_strategies;
+                        await interaction.reply({ content: responseMessage, ephemeral: true }); // Reply to the interaction
                         break;
                     case "weekend_trading":
                         responseMessage = defaultQuestions.weekend_trading;
-                        break;
-                    case "scaling":
-                        responseMessage = defaultQuestions.scaling;
+                        await interaction.reply({ content: responseMessage, ephemeral: true }); // Reply to the interaction
                         break;
                     case "drawdown_question":
                         responseMessage = defaultQuestions.drawdown;
+                        await interaction.reply({ content: responseMessage, ephemeral: true }); // Reply to the interaction
                         break;
                     case "profit_loss":
                         responseMessage = defaultQuestions.profit_loss;
+                        await interaction.reply({ content: responseMessage, ephemeral: true }); // Reply to the interaction
                         break;
                     case "tradeable_assets":
                         responseMessage = defaultQuestions.tradeable_assets;
+                        await interaction.reply({ content: responseMessage, ephemeral: true }); // Reply to the interaction
                         break;
                     case "account_credentials":
                         responseMessage = defaultQuestions.account_credentials;
+                        await interaction.reply({ content: responseMessage, ephemeral: true }); // Reply to the interaction
                         break;
                     case "scaling":
                         responseMessage = defaultQuestions.scaling;
+                        await interaction.reply({ content: responseMessage, ephemeral: true }); // Reply to the interaction
                         break;
                     case "refunds":
                         responseMessage = defaultQuestions.refunds;
+                        await interaction.reply({ content: responseMessage, ephemeral: true }); // Reply to the interaction
                         break;
                     case "trading_rules":
                         const row1 = new ActionRowBuilder().addComponents(
@@ -152,7 +162,6 @@ module.exports = {
 
                         // Reply directly to the user's original message
                         await originalMessage.reply({ content: responseMessage });
-                        await interaction.deleteReply();
 
                         for (let [key, value] of userActiveMessages.entries()) {
                             if (value === interaction.user.id) {
@@ -164,6 +173,8 @@ module.exports = {
 
                     default:
                         responseMessage = "Unknown option selected.";
+                        await interaction.reply({ content: responseMessage }); // Acknowledge the interaction for default case
+                        break;
                 }
 
                 // If not 'ask_ai', edit the deferred reply with actual content
@@ -173,13 +184,18 @@ module.exports = {
                 }
             } catch (error) {
                 console.error("Error during interaction:", error.message);
-                try {
-                    // Edit the deferred reply in case of error
-                    await interaction.editReply({
-                        content: "There was an error while processing your request. Please try asking your question again. We are sorry",
+                if (!interaction.replied && !interaction.deferred) {
+                    // Interaction hasn't been replied or deferred
+                    await interaction.reply({
+                        content: "There was an error while processing your request. Please try again.",
+                        ephemeral: true,
                     });
-                } catch (error) {
-                    console.error("Error responding to interaction:", error.message);
+                } else {
+                    // Interaction has been deferred
+                    await interaction.followUp({
+                        content: "There was an error while processing your request. Please try again.",
+                        ephemeral: true,
+                    });
                 }
             }
         }
