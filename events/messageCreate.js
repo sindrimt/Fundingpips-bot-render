@@ -17,7 +17,7 @@ async function query(data) {
         const result = await response.json();
         return result;
     } catch (error) {
-        console.log(error);
+        console.log(error?.message);
     }
 }
 
@@ -219,13 +219,12 @@ const checkIfDefaultAnswerIsGood = (message, messageWithoutMention, defaultAnswe
                         .catch(async (err) => {
                             await findingAnswerMessage.delete();
                             message.reply("No answer found");
-                            console.log(err);
-                            console.log("Error with query");
+                            console.log(err.message);
                         });
                 } catch (error) {
                     await findingAnswerMessage.delete();
                     message.reply("No answer found");
-                    console.log(error);
+                    console.log(error.message);
                 }
             }
         });
