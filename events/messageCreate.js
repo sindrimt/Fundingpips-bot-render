@@ -105,7 +105,6 @@ module.exports = {
         }
 
         const existingMessageId = userActiveMessages.get(message.author.id);
-        console.log(existingMessageId);
 
         if (existingMessageId) {
             return;
@@ -114,8 +113,6 @@ module.exports = {
         if (process.env.LIVEANSWERS_CHANNELS.includes(message.channel.id)) {
             const newob = JSON.stringify(message.member);
             const userRoles = JSON.parse(newob).roles;
-
-            console.log(userRoles);
 
             // Moderator and support roles
             const moderatorRoles = ["1033766629319909427", "1150807715417952378"];

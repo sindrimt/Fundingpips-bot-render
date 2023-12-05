@@ -8,7 +8,11 @@ const { userActiveMessages } = require("./messageCreate.js");
 module.exports = {
     name: Events.InteractionCreate,
     async execute(interaction) {
-        userActiveMessages.delete(interaction.user.id);
+        try {
+            userActiveMessages.delete(interaction.user.id);
+        } catch {
+            console.log("error deleting user from active messages");
+        }
 
         if (interaction.isButton()) {
             const [customId, originalMessageId] = interaction.customId.split("-");
@@ -112,7 +116,6 @@ module.exports = {
 
                         break;
                     case "ask_ai":
-                        console.log(originalMessage);
                         //await interaction.deferReply({ ephemeral: false, content: originalMessage.content });
                         const user = interaction.user; // The user who clicked the button
 
