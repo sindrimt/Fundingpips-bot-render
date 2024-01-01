@@ -104,6 +104,29 @@ module.exports = {
             return;
         }
 
+        console.log(message.content);
+
+        // If the message either include the bot's id or role id in the tag
+        if (
+            message.content.includes(`<@${process.env.BOT_ID || "1166213631701168128"}>`) ||
+            message.content.includes(`<@&${process.env.BOT_ROLE_ID || "1166660825281470535"}>`)
+        ) {
+            // If the bot is tagged, we directly ask stack ai
+            try {
+                responseMessage = await query({
+                    "in-0": message.content,
+                    user_id: message.author.id,
+                });
+
+                message.reply(responseMessage["out-0"]);
+            } catch (error) {
+                console.log(error?.message);
+            }
+
+            // Return of the function because we don't want to continue the execution
+            return;
+        }
+
         const existingMessageId = userActiveMessages.get(message.author.id);
 
         if (existingMessageId) {
