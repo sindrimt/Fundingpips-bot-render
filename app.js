@@ -1,7 +1,7 @@
 require("dotenv").config();
 const fs = require("node:fs");
 const path = require("node:path");
-const { Client, Routes, Collection, GatewayIntentBits, Partials } = require("discord.js");
+const { Client, Routes, Collection, GatewayIntentBits, Partials, enableValidators } = require("discord.js");
 const { DISCORD_TOKEN, APP_ID, SERVER_ID } = process.env;
 const express = require("express"); // Import express
 
