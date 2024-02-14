@@ -104,8 +104,6 @@ module.exports = {
             return;
         }
 
-        console.log(message.content);
-
         // If the message either include the bot's id or role id in the tag
         if (
             message.content.includes(`<@${process.env.BOT_ID || "1166213631701168128"}>`) ||
@@ -134,6 +132,8 @@ module.exports = {
         }
 
         if (process.env.LIVEANSWERS_CHANNELS.includes(message.channel.id)) {
+            console.log(message.content);
+
             const newob = JSON.stringify(message.member);
             const userRoles = JSON.parse(newob).roles;
 
@@ -221,7 +221,7 @@ const checkIfDefaultAnswerIsGood = (message, messageWithoutMention, defaultAnswe
                         user_id: message.author.id,
                     })
                         .then(async (response) => {
-                            console.log(response["out-0"]);
+                            //console.log(response["out-0"]);
 
                             // Delete the 'finding better answer' message
                             if (findingAnswerMessage) {
